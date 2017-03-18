@@ -1,0 +1,579 @@
+---
+swagger: "2.0"
+info:
+  description: "a simple API for the kismatic enterprise toolkit"
+  version: "1.0.0"
+  title: "KET Cluster API (Simple)"
+  termsOfService: "http://helloreverb.com/terms/"
+  contact:
+    name: "David Steiman"
+    url: "http://stytex.de"
+    email: "adinatbust@gmail.com"
+  license:
+    name: "MIT"
+    url: "http://opensource.org/licenses/MIT"
+basePath: "/api"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /clusters:
+    get:
+      description: "returns all existing clusters"
+      operationId: "findClusters"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "cluster response"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/cluster"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    post:
+      description: "adds a cluster"
+      operationId: "addCluster"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "cluster"
+        description: "Cluster to add to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/clusterCreation"
+      responses:
+        200:
+          description: "cluster response"
+          schema:
+            $ref: "#/definitions/cluster"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}:
+    get:
+      description: "Returns a cluster, given by name"
+      operationId: "findClusterByName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "cluster response"
+          schema:
+            $ref: "#/definitions/cluster"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    delete:
+      description: "deletes a single cluster based on the name supplied"
+      operationId: "deleteCluster"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of cluster to delete"
+        required: true
+        type: "string"
+      responses:
+        204:
+          description: "cluster deleted"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/etcd:
+    get:
+      description: "the etcd nodes of the given cluster"
+      operationId: "findEtcdsByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "etcd nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "set the etcd nodes of the given cluster"
+      operationId: "setEtcdsByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "hosts"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "etcd nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/masters:
+    get:
+      description: "the masters nodes of the given cluster"
+      operationId: "findMastersByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "master nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "set the masters nodes of the given cluster"
+      operationId: "setMastersByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "hosts"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "master nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/workers:
+    get:
+      description: "the workers nodes of the given cluster"
+      operationId: "findWorkersByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "worker nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    post:
+      description: "adds a worker to the given cluster"
+      operationId: "addWorkerByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "host"
+        required: true
+        schema:
+          $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "worker nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "set the workers nodes of the given cluster"
+      operationId: "setWorkersByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "hosts"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "worker nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/ingresses:
+    get:
+      description: "the ingress nodes of the given cluster"
+      operationId: "findIngressesByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "ingress nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "set the workers nodes of the given cluster"
+      operationId: "setIngressesByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "hosts"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "ingress nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/storage:
+    get:
+      description: "the storage nodes of the given cluster"
+      operationId: "findStorageByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "storage nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "set the storage nodes of the given cluster"
+      operationId: "setStorageByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "hosts"
+        required: false
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/hostModel"
+      responses:
+        200:
+          description: "storage nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+  /clusters/{name}/volumes:
+    get:
+      description: "returns the volumes of this cluster"
+      operationId: "findVolumesByClusterName"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "not implemented in this version"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+    post:
+      description: "adds a new volume the given cluster"
+      operationId: "addVolumeByClusterName"
+      produces:
+      - "application/jsonl"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "name of the cluster to fetch"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "volume"
+        required: false
+        schema:
+          $ref: "#/definitions/volume"
+      responses:
+        200:
+          description: "storage nodes"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/hostModel"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/errorModel"
+      x-swagger-router-controller: "Default"
+definitions:
+  clusterCreation:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+      number_etcd:
+        type: "integer"
+        format: "int32"
+        default: 2
+      number_master:
+        type: "integer"
+        format: "int32"
+        default: 2
+      number_worker:
+        type: "integer"
+        format: "int32"
+        default: 2
+      number_ingress:
+        type: "integer"
+        format: "int32"
+        default: 2
+      number_storage:
+        type: "integer"
+        format: "int32"
+        default: 2
+  cluster:
+    type: "object"
+    required:
+    - "admin_password"
+    - "name"
+    properties:
+      name:
+        type: "string"
+      admin_password:
+        type: "string"
+      provisioned:
+        type: "boolean"
+      allow_package_installation:
+        type: "boolean"
+        default: true
+      networking:
+        type: "string"
+        enum:
+        - "overlay"
+        - "XXX"
+        default: "overlay"
+      pod_cidr_block:
+        type: "string"
+        default: "172.16.0.0/16"
+      service_cidr_block:
+        type: "string"
+        default: "172.17.0.0/16"
+      policy_enabled:
+        type: "boolean"
+        default: false
+      update_hosts_files:
+        type: "boolean"
+        default: true
+      certificates_expiry:
+        type: "string"
+        default: "17520h"
+      ssh_user:
+        type: "string"
+        default: "root"
+      ssh_key:
+        type: "string"
+        default: "/home/david/.ssh/david-precision/id_rsa"
+      ssh_port:
+        type: "string"
+        default: "22"
+      docker_registry_setup_internal:
+        type: "boolean"
+        default: false
+      docker_registry_address:
+        type: "string"
+        default: ""
+      docker_registry_port:
+        type: "string"
+        default: "8443"
+      docker_registry_cs:
+        type: "string"
+        default: ""
+  hostModel:
+    type: "object"
+    required:
+    - "host"
+    - "ip"
+    properties:
+      host:
+        type: "string"
+      ip:
+        type: "string"
+      internalIp:
+        type: "string"
+  volume:
+    type: "object"
+    required:
+    - "allow_addresses"
+    - "distribution_count"
+    - "name"
+    - "size"
+    properties:
+      name:
+        type: "string"
+      allow_addresses:
+        type: "string"
+        default: "10.10.*.*"
+      replication_count:
+        type: "integer"
+        format: "int32"
+        default: 2
+      distribution_count:
+        type: "integer"
+        format: "int32"
+        default: 2
+      size:
+        type: "integer"
+        format: "int32"
+        default: 10
+  errorModel:
+    type: "object"
+    required:
+    - "code"
+    - "message"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
